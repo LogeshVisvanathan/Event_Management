@@ -1,0 +1,266 @@
+// src/Pages/VendorDashboard.jsx
+import { useState } from "react";
+
+const initialRequests = [
+  {
+    id: 1,
+    client: "Akash & Priya",
+    eventType: "Marriage Function",
+    date: "12 Jan 2026",
+    city: "Chennai",
+    budget: "₹3.5L",
+    guests: 400,
+    status: "pending",
+  },
+  {
+    id: 2,
+    client: "Karthik Family",
+    eventType: "Puberty Ceremony",
+    date: "28 Dec 2025",
+    city: "Madurai",
+    budget: "₹1.8L",
+    guests: 250,
+    status: "pending",
+  },
+  {
+    id: 3,
+    client: "Sanjay",
+    eventType: "Birthday (21st)",
+    date: "04 Feb 2026",
+    city: "Bengaluru",
+    budget: "₹90K",
+    guests: 80,
+    status: "accepted",
+  },
+];
+
+export default function VendorDashboard() {
+  const [requests, setRequests] = useState(initialRequests);
+
+  const handleUpdate = (id, status) => {
+    setRequests((prev) =>
+      prev.map((r) => (r.id === id ? { ...r, status } : r))
+    );
+  };
+
+  const total = requests.length;
+  const accepted = requests.filter((r) => r.status === "accepted").length;
+  const declined = requests.filter((r) => r.status === "declined").length;
+  const pending = requests.filter((r) => r.status === "pending").length;
+
+  return (
+    <div className="relative">
+      <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-64 bg-gradient-to-b from-sky-50 via-cyan-50 to-transparent" />
+
+      <section className="mx-auto max-w-6xl px-4 pt-20 pb-24 space-y-8">
+        {/* Header */}
+        <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-semibold text-slate-900">
+              Vendor Dashboard
+            </h1>
+            <p className="mt-1 text-xs sm:text-sm text-slate-600 max-w-xl">
+              Manage incoming booking requests, track confirmed events and keep
+              your calendar glowing.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap gap-2 text-[11px] text-slate-500">
+            <span className="rounded-full bg-slate-100 px-3 py-1">
+              Role: <span className="font-semibold text-slate-800">Vendor</span>
+            </span>
+            <span className="rounded-full bg-sky-50 px-3 py-1 text-sky-700">
+              Live chat enabled
+            </span>
+          </div>
+        </header>
+
+        {/* Top stats */}
+        <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <StatCard
+            label="Total Requests"
+            value={total}
+            badge="All"
+            gradient="from-sky-500 via-cyan-400 to-emerald-400"
+          />
+          <StatCard
+            label="Confirmed"
+            value={accepted}
+            badge="Accepted"
+            gradient="from-emerald-400 via-teal-400 to-sky-400"
+          />
+          <StatCard
+            label="Pending"
+            value={pending}
+            badge="Waiting"
+            gradient="from-amber-400 via-orange-300 to-sky-400"
+          />
+          <StatCard
+            label="Declined"
+            value={declined}
+            badge="Declined"
+            gradient="from-rose-400 via-orange-300 to-amber-300"
+          />
+        </section>
+
+        {/* Main layout */}
+        <div className="grid gap-6 lg:grid-cols-[1.6fr,1fr]">
+          {/* Requests list */}
+          <section className="neon-card/strong rounded-[28px] bg-white/95 p-5 shadow-xl">
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <div>
+                <h2 className="text-sm sm:text-base font-semibold text-slate-900">
+                  Booking Requests
+                </h2>
+                <p className="text-[11px] text-slate-500">
+                  Accept or decline requests. This is front-end only.
+                </p>
+              </div>
+              <div className="flex gap-2 text-[10px]">
+                <span className="rounded-full bg-slate-100 px-2.5 py-1 text-slate-600">
+                  Today • 3 new
+                </span>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              {requests.map((r) => (
+                <RequestCard key={r.id} request={r} onUpdate={handleUpdate} />
+              ))}
+            </div>
+          </section>
+
+          {/* Right side – mini schedule & notes */}
+          <aside className="space-y-4">
+            <div className="rounded-[26px] bg-white/95 p-5 shadow-lg">
+              <h3 className="mb-3 text-sm font-semibold text-slate-900">
+                Upcoming Events
+              </h3>
+              <ul className="space-y-3 text-xs text-slate-600">
+                <li className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-slate-900">
+                      Marriage – Akash & Priya
+                    </p>
+                    <p className="text-[11px] text-slate-500">
+                      12 Jan 2026 • Chennai
+                    </p>
+                  </div>
+                  <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold text-emerald-600">
+                    Confirmed
+                  </span>
+                </li>
+                <li className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-slate-900">
+                      Puberty Ceremony – Karthik
+                    </p>
+                    <p className="text-[11px] text-slate-500">
+                      28 Dec 2025 • Madurai
+                    </p>
+                  </div>
+                  <span className="rounded-full bg-amber-50 px-2.5 py-1 text-[10px] font-semibold text-amber-600">
+                    Tentative
+                  </span>
+                </li>
+              </ul>
+            </div>
+
+            <div className="rounded-[26px] bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 p-[1px] shadow-xl">
+              <div className="rounded-[24px] bg-slate-900/95 p-5 text-xs text-slate-200">
+                <h3 className="mb-2 text-sm font-semibold text-white">
+                  Tips to Get More Bookings
+                </h3>
+                <ul className="space-y-2 list-disc pl-4">
+                  <li>Update your price range and city coverage regularly.</li>
+                  <li>
+                    Reply to new chat messages within{" "}
+                    <span className="text-emerald-300">15 minutes</span>.
+                  </li>
+                  <li>Upload recent photos & reviews to boost trust.</li>
+                </ul>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function StatCard({ label, value, badge, gradient }) {
+  return (
+    <div className="relative overflow-hidden rounded-3xl bg-white/95 p-4 shadow-lg">
+      <div
+        className={`pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-gradient-to-tr ${gradient} opacity-40 blur-2xl`}
+      />
+      <p className="text-[11px] text-slate-500">{label}</p>
+      <p className="mt-2 text-2xl font-semibold text-slate-900">{value}</p>
+      <span className="mt-2 inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-medium text-slate-600">
+        {badge}
+      </span>
+    </div>
+  );
+}
+
+function RequestCard({ request, onUpdate }) {
+  const { id, client, eventType, date, city, budget, guests, status } = request;
+
+  const statusChip = {
+    pending: {
+      text: "Pending",
+      classes:
+        "bg-amber-50 text-amber-700 border border-amber-100",
+    },
+    accepted: {
+      text: "Accepted",
+      classes: "bg-emerald-50 text-emerald-700 border border-emerald-100",
+    },
+    declined: {
+      text: "Declined",
+      classes: "bg-rose-50 text-rose-700 border border-rose-100",
+    },
+  }[status];
+
+  return (
+    <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-4 text-xs text-slate-700 transition hover:border-sky-200 hover:bg-white">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-sm font-semibold text-slate-900">{client}</p>
+          <p className="text-[11px] text-slate-500">{eventType}</p>
+          <div className="mt-2 flex flex-wrap gap-3 text-[11px]">
+            <span>📅 {date}</span>
+            <span>📍 {city}</span>
+            <span>👥 {guests} guests</span>
+            <span>💰 {budget}</span>
+          </div>
+        </div>
+
+        <div className="flex flex-col items-end gap-2">
+          <span
+            className={`rounded-full px-3 py-1 text-[10px] font-semibold ${statusChip.classes}`}
+          >
+            {statusChip.text}
+          </span>
+
+          <div className="flex gap-2">
+            <button
+              onClick={() => onUpdate(id, "declined")}
+              className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-medium text-slate-700 transition hover:border-rose-200 hover:text-rose-600 disabled:cursor-not-allowed disabled:opacity-40"
+              disabled={status === "declined"}
+            >
+              Decline
+            </button>
+            <button
+              onClick={() => onUpdate(id, "accepted")}
+              className="rounded-full bg-gradient-to-r from-sky-500 via-cyan-400 to-emerald-400 px-3 py-1.5 text-[11px] font-semibold text-white shadow-md transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-40"
+              disabled={status === "accepted"}
+            >
+              Accept
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

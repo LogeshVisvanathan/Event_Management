@@ -1,0 +1,166 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply text-ink;
+  /* ✨ Main background: soft linear gradient (no pink) */
+  background: linear-gradient(
+    135deg,
+    #eef2ff 0%,
+    #e0f9ff 45%,
+    #f4f6fb 100%
+  );
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+}
+
+/* Subtle moving overlay (still soft blue / mint) */
+.app-bg-orbit {
+  position: fixed;
+  inset: -30%;
+  z-index: -10;
+  background:
+    radial-gradient(circle at 10% 20%, rgba(197, 227, 255, 0.9), transparent 55%),
+    radial-gradient(circle at 90% 10%, rgba(183, 242, 230, 0.85), transparent 55%),
+    radial-gradient(circle at 20% 90%, rgba(215, 221, 255, 0.75), transparent 55%);
+  filter: blur(8px);
+  animation: orbit-move 24s ease-in-out infinite alternate;
+}
+
+@keyframes orbit-move {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(-40px, -20px, 0) scale(1.02);
+  }
+  100% {
+    transform: translate3d(40px, 30px, 0) scale(1.04);
+  }
+}
+
+/* nicer scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  /* linear gradient for scrollbar too */
+  background: linear-gradient(180deg, #c5e3ff, #b8f2e6);
+}
+
+/* Soft floating animation */
+.float-soft {
+  animation: float-soft 10s ease-in-out infinite;
+}
+
+@keyframes float-soft {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+/* Cyber grid bg (very subtle) */
+.cyber-grid {
+  background-image:
+    radial-gradient(circle at 0 0, rgba(56,189,248,0.16), transparent 55%),
+    radial-gradient(circle at 100% 100%, rgba(45,212,191,0.18), transparent 55%),
+    linear-gradient(
+      rgba(148,163,184,0.08) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(148,163,184,0.08) 1px,
+      transparent 1px
+    );
+  background-size: 100% 100%, 100% 100%, 80px 80px, 80px 80px;
+  background-position: 0 0, 0 0, -1px -1px, -1px -1px;
+}
+
+/* Simple neon card highlight */
+.neon-card,
+.neon-card\/soft,
+.neon-card\/strong {
+  position: relative;
+}
+
+.neon-card::before,
+.neon-card\/soft::before,
+.neon-card\/strong::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(120deg, rgba(56,189,248,0.0), rgba(129,140,248,0.24), rgba(45,212,191,0.0));
+  opacity: 0;
+  transition: opacity 0.3s;
+  z-index: -1;
+}
+
+.neon-card:hover::before,
+.neon-card\/soft:hover::before,
+.neon-card\/strong:hover::before {
+  opacity: 1;
+}
+
+/* stronger glow variant */
+.neon-card\/strong::before {
+  background: linear-gradient(120deg, rgba(56,189,248,0.1), rgba(129,140,248,0.4), rgba(45,212,191,0.15));
+}
+
+/* tiny glowing dot */
+.neon-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 9999px;
+  background: radial-gradient(circle at 30% 30%, #a5f3fc, #0ea5e9);
+  box-shadow: 0 0 0 4px rgba(56,189,248,0.35), 0 0 18px rgba(45,212,191,0.7);
+}
+@keyframes cardFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.animate-cardFloat {
+  animation: cardFloat 6s ease-in-out infinite;
+}
+
+/* slow ping used in the badge */
+@keyframes ping-slow {
+  0% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  70% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.animate-ping-slow {
+  position: relative;
+}
+.animate-ping-slow::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background-color: inherit;
+  animation: ping-slow 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
