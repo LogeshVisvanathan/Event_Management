@@ -4,42 +4,42 @@ import { Link } from "react-router-dom";
 export default function Vendors() {
   const vendors = [
     {
-      id: "dream-weavers",
+      slug: "dream-weavers-event-planners",
       name: "Dream Weavers Event Planners",
       role: "Event Planner",
       rating: 5.0,
       city: "Chennai",
     },
     {
-      id: "elegant-moments",
+      slug: "elegant-moments-photography",
       name: "Elegant Moments Photography",
       role: "Photographer",
       rating: 4.9,
       city: "Bengaluru",
     },
     {
-      id: "floral-fantasy",
+      slug: "floral-fantasy-decor",
       name: "Floral Fantasy Decor",
       role: "Decorator",
       rating: 4.9,
       city: "Coimbatore",
     },
     {
-      id: "gourmet-bites",
+      slug: "gourmet-bites-catering",
       name: "Gourmet Bites Catering",
       role: "Caterer",
       rating: 4.8,
       city: "Chennai",
     },
     {
-      id: "sonic-waves",
-      name: "Sonic Waves DJ Services",
+      slug: "sonic-waves-dj",
+      name: "Sonic Waves DJ",
       role: "DJ",
       rating: 4.7,
       city: "Hyderabad",
     },
     {
-      id: "harmony-strings",
+      slug: "harmony-strings-quartet",
       name: "Harmony Strings Quartet",
       role: "Live Music",
       rating: 4.8,
@@ -58,8 +58,8 @@ export default function Vendors() {
               Our Vendors
             </h1>
             <p className="mt-2 max-w-xl text-sm text-slate-600">
-              Every vendor is identity-verified, rated by real guests and mapped
-              to the right event categories.
+              Every vendor is identity-verified, rated by real guests and
+              mapped to the right event categories.
             </p>
           </div>
           <p className="text-xs text-slate-500">
@@ -100,9 +100,10 @@ export default function Vendors() {
         <div className="grid gap-6 md:grid-cols-2">
           {vendors.map((v) => (
             <article
-              key={v.id}
+              key={v.slug}
               className="neon-card/strong group flex gap-4 rounded-3xl bg-white/95 p-5 shadow-lg transition-transform duration-300 hover:-translate-y-2 hover:shadow-2xl"
             >
+              {/* icon */}
               <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-gradient-to-tr from-sky-500 via-cyan-400 to-emerald-400 text-sm text-white shadow-lg">
                 <div className="absolute inset-[3px] rounded-[18px] bg-slate-900/90" />
                 <span className="relative flex h-full items-center justify-center text-xs font-semibold">
@@ -113,6 +114,7 @@ export default function Vendors() {
                 </span>
               </div>
 
+              {/* content */}
               <div className="flex flex-1 flex-col gap-2">
                 <div className="flex items-center justify-between gap-2">
                   <h2 className="text-sm font-semibold text-slate-900 sm:text-base">
@@ -136,14 +138,18 @@ export default function Vendors() {
                 </div>
 
                 <div className="mt-3 flex gap-2">
-                  <button className="flex-1 rounded-full border border-slate-200 bg-white px-3 py-2 text-[11px] font-medium text-slate-700 transition hover:border-sky-300 hover:text-sky-700">
-                    View Profile
-                  </button>
-
-                  {/* ROUTES TO CHAT PAGE */}
+                  {/* FIX: this is now a Link that routes to /vendors/:vendorId */}
                   <Link
-                    to={`/chat/${v.id}`}
-                    className="flex-1 rounded-full bg-gradient-to-r from-sky-500 via-cyan-400 to-emerald-400 px-3 py-2 text-center text-[11px] font-semibold text-white shadow-md transition hover:shadow-lg hover:-translate-y-0.5"
+                    to={`/vendors/${v.slug}`}
+                    className="flex-1 rounded-full border border-slate-200 bg-white px-3 py-2 text-center text-[11px] font-medium text-slate-700 transition hover:border-sky-300 hover:text-sky-700"
+                  >
+                    View Profile
+                  </Link>
+
+                  {/* optional: this could route to /chat with a query param */}
+                  <Link
+                    to={`/chat?vendor=${v.slug}`}
+                    className="flex-1 rounded-full bg-gradient-to-r from-sky-500 via-cyan-400 to-emerald-400 px-3 py-2 text-center text-[11px] font-semibold text-white shadow-md transition hover:shadow-lg"
                   >
                     Contact / Chat
                   </Link>
