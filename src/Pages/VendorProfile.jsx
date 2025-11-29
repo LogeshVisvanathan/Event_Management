@@ -1,6 +1,6 @@
 // src/Pages/VendorProfile.jsx
 import { useParams, Link } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const VENDOR_PROFILE_DATA = {
   "dream-weavers-event-planners": {
@@ -248,9 +248,14 @@ export default function VendorProfile() {
               availability, pricing, and layout suggestions.
             </p>
 
-            <button className="mt-5 inline-flex w-full items-center justify-center rounded-full bg-gradient-to-r from-sky-500 via-cyan-400 to-emerald-400 px-4 py-2 text-xs font-semibold text-white shadow-[0_16px_40px_rgba(56,189,248,0.7)] transition-transform duration-300 hover:-translate-y-0.5 hover:scale-[1.01]">
+            {/* <-- ROUTED LINK: opens chat for this vendor --> */}
+            <Link
+              to={`/chat/${encodeURIComponent(vendorId)}`}
+              className="mt-5 inline-flex w-full items-center justify-center rounded-full bg-gradient-to-r from-sky-500 via-cyan-400 to-emerald-400 px-4 py-2 text-xs font-semibold text-white shadow-[0_16px_40px_rgba(56,189,248,0.7)] transition-transform duration-300 hover:-translate-y-0.5 hover:scale-[1.01]"
+              aria-label={`Start conversation with ${data.name}`}
+            >
               Start Conversation
-            </button>
+            </Link>
 
             <div className="mt-4 grid gap-2 text-[11px] text-slate-300">
               <div className="flex items-center justify-between">
@@ -314,6 +319,16 @@ export default function VendorProfile() {
           {activeTab === "Reviews" && <ReviewsTab reviews={data.reviews} rating={data.rating} />}
         </div>
       </div>
+
+      {/* ----- Completed Events section (new) ----- */}
+      <div className="mt-12">
+        <h2 className="mb-4 text-xl font-semibold text-slate-900">Completed Events</h2>
+        <p className="mb-6 text-sm text-slate-600 max-w-2xl">
+          Add past events you've completed — these will display on your profile as examples of your work.
+        </p>
+
+        <CompletedEvents vendorId={vendorId} initialEvents={data.portfolio} />
+      </div>
     </section>
   );
 }
@@ -322,9 +337,7 @@ export default function VendorProfile() {
 
 function PortfolioTab({ portfolio }) {
   return (
-    <div
-      className="grid gap-5 md:grid-cols-3"
-    >
+    <div className="grid gap-5 md:grid-cols-3">
       {portfolio.map((item, idx) => (
         <div
           key={item.title}
@@ -440,3 +453,228 @@ function ReviewsTab({ reviews, rating }) {
     </div>
   );
 }
+
+/* ---------- Completed Events component (new) ---------- */
+
+function CompletedEvents({ vendorId, initialEvents = [] }) {
+  // key in localStorage to persist vendor's completed events
+  const storageKey = `vendor:${vendorId}:completedEvents`;
+
+  // load from localStorage or fall back to initialEvents (map portfolio to event shape)
+  const loadInitial = () => {
+    try {
+      const raw = localStorage.getItem(storageKey);
+      if (raw) return JSON.parse(raw);
+    } catch (e) {
+      // ignore parse errors
+    }
+    // map portfolio items to completed event schema
+    return initialEvents.map((p, idx) => ({
+      id: `init-${idx}`,
+      title: p.title,
+      category: p.category,
+      date: p.year ? `${p.year}-01-01` : "",
+      blurb: p.blurb,
+      image: p.image,
+      createdAt: Date.now() - idx * 1000,
+    }));
+  };
+
+  const [events, setEvents] = useState(loadInitial);
+  const [form, setForm] = useState({
+    title: "",
+    category: "",
+    date: "",
+    blurb: "",
+    imageFile: null,
+    imagePreview: null,
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(events));
+    } catch (e) {
+      // ignore
+    }
+  }, [events]);
+
+  function onFileChange(e) {
+    const file = e.target.files[0];
+    if (!file) {
+      setForm((s) => ({ ...s, imageFile: null, imagePreview: null }));
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      setForm((s) => ({ ...s, imageFile: file, imagePreview: reader.result }));
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function handleAdd(e) {
+    e.preventDefault();
+    if (!form.title.trim()) return alert("Please enter event title.");
+    const newEvent = {
+      id: `evt-${Date.now()}`,
+      title: form.title.trim(),
+      category: form.category || "General",
+      date: form.date || "",
+      blurb: form.blurb || "",
+      image: form.imagePreview || null,
+      createdAt: Date.now(),
+    };
+    setEvents((prev) => [newEvent, ...prev]);
+    setForm({ title: "", category: "", date: "", blurb: "", imageFile: null, imagePreview: null });
+  }
+
+  function handleRemove(id) {
+    if (!confirm("Remove this completed event?")) return;
+    setEvents((prev) => prev.filter((p) => p.id !== id));
+  }
+
+  return (
+    <div className="grid gap-6">
+      {/* form */}
+      <form
+        onSubmit={handleAdd}
+        className="rounded-2xl border border-slate-100 bg-white/90 p-6 shadow-[0_14px_40px_rgba(15,23,42,0.08)] transition-transform duration-300 hover:shadow-[0_18px_50px_rgba(15,23,42,0.12)]"
+      >
+        <div className="grid gap-3 md:grid-cols-3">
+          <div className="md:col-span-2 grid gap-3">
+            <div className="grid gap-2">
+              <label className="text-xs font-medium text-slate-600">Event title</label>
+              <input
+                value={form.title}
+                onChange={(e) => setForm({ ...form, title: e.target.value })}
+                placeholder="e.g., Sunset Lakeside Wedding"
+                className="w-full rounded-2xl border border-slate-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-sky-200"
+              />
+            </div>
+
+            <div className="flex gap-3">
+              <div className="w-1/2">
+                <label className="text-xs font-medium text-slate-600">Category</label>
+                <input
+                  value={form.category}
+                  onChange={(e) => setForm({ ...form, category: e.target.value })}
+                  placeholder="Marriage / Engagement / Birthday"
+                  className="w-full rounded-2xl border border-slate-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-sky-200"
+                />
+              </div>
+              <div className="w-1/2">
+                <label className="text-xs font-medium text-slate-600">Date</label>
+                <input
+                  value={form.date}
+                  onChange={(e) => setForm({ ...form, date: e.target.value })}
+                  type="date"
+                  className="w-full rounded-2xl border border-slate-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-sky-200"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs font-medium text-slate-600">Short description</label>
+              <textarea
+                value={form.blurb}
+                onChange={(e) => setForm({ ...form, blurb: e.target.value })}
+                rows={3}
+                placeholder="One- or two-line summary of the event and what you delivered"
+                className="w-full rounded-2xl border border-slate-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-sky-200"
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-col items-center justify-center gap-3">
+            <div className="w-full rounded-2xl border border-dashed border-slate-200 p-3 text-center">
+              <label className="mb-2 block text-xs font-medium text-slate-500">
+                Upload photo (optional)
+              </label>
+              <input type="file" accept="image/*" onChange={onFileChange} />
+              {form.imagePreview ? (
+                <img
+                  src={form.imagePreview}
+                  alt="preview"
+                  className="mt-3 max-h-28 w-full rounded-lg object-cover shadow-sm"
+                />
+              ) : (
+                <div className="mt-3 text-[12px] text-slate-400">Preview will appear here</div>
+              )}
+            </div>
+
+            <div className="w-full">
+              <button
+                type="submit"
+                className="w-full rounded-full bg-gradient-to-r from-sky-500 via-cyan-400 to-emerald-400 px-4 py-2 text-sm font-semibold text-white shadow-md transition-transform duration-200 hover:-translate-y-1"
+              >
+                Add Completed Event
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+
+      {/* events list */}
+      <div className="grid gap-4 md:grid-cols-3">
+        {events.length === 0 && (
+          <div className="col-span-full rounded-2xl border border-slate-100 bg-white/90 p-6 text-sm text-slate-600">
+            No completed events yet — add one above to showcase your work.
+          </div>
+        )}
+
+        {events.map((ev, idx) => (
+          <div
+            key={ev.id}
+            className="overflow-hidden rounded-2xl bg-white/90 p-0 shadow-[0_12px_36px_rgba(15,23,42,0.08)] transition-transform duration-400 hover:-translate-y-1"
+            style={{ animation: `fadeInUp 360ms ease ${idx * 60}ms both` }}
+          >
+            <div className="h-40 overflow-hidden bg-slate-100">
+              {ev.image ? (
+                <img src={ev.image} alt={ev.title} className="h-full w-full object-cover" />
+              ) : (
+                <div className="flex h-full items-center justify-center text-slate-400">
+                  No image
+                </div>
+              )}
+            </div>
+            <div className="px-4 py-3 text-sm text-slate-700">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-[11px] uppercase tracking-[0.12em] text-slate-400">
+                    {ev.category} {ev.date ? `• ${ev.date.slice(0, 10)}` : ""}
+                  </p>
+                  <h3 className="mt-1 text-base font-semibold text-slate-900">
+                    {ev.title}
+                  </h3>
+                </div>
+                <div className="text-right">
+                  <button
+                    onClick={() => handleRemovePrompt(ev.id, handleRemove)}
+                    className="rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-600 hover:bg-red-100"
+                    title="Remove"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+              <p className="mt-2 text-xs text-slate-600">{ev.blurb}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* CSS keyframe for smooth entry (tailwind doesn't provide custom keyframes inline) */}
+      <style>{`
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(8px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+// helper that asks confirmation and calls handler (separate to keep JSX clean)
+function handleRemovePrompt(id, handler) {
+  if (confirm("Remove this completed event?")) handler(id);
+}
+

@@ -10,6 +10,11 @@ import Contact from "./Pages/Contact";
 import Chat from "./Pages/Chat";
 import EventLayouts from "./Pages/EventLayouts";
 
+// booking + payment flow (new)
+import BookNow from "./Pages/BookNow";
+import Checkout from "./Pages/Checkout";
+import PaymentSuccess from "./Pages/PaymentSuccess";
+
 // dashboards
 import VendorDashboard from "./Pages/VendorDashboard";
 import AdminDashboard from "./Pages/AdminDashboard";
@@ -43,19 +48,17 @@ export default function App() {
             {/* vendor profile detail page */}
             <Route path="/vendors/:vendorId" element={<VendorProfile />} />
 
-            {/* layouts detail page – NEW */}
-            <Route
-              path="/events/:eventId/layouts"
-              element={<EventLayouts />}
-            />
+            {/* booking & payment flow */}
+            <Route path="/book/:vendorId" element={<BookNow />} />
+            <Route path="/checkout/:bookingId" element={<Checkout />} />
+            <Route path="/payment/success" element={<PaymentSuccess />} />
+
+            {/* layouts detail page */}
+            <Route path="/events/:eventId/layouts" element={<EventLayouts />} />
 
             {/* ---------- dashboards ---------- */}
-            <Route
-              path="/vendor-dashboard"
-              element={<VendorDashboard />}
-            />
+            <Route path="/vendor-dashboard" element={<VendorDashboard />} />
             <Route path="/admin-dashboard" element={<AdminDashboard />} />
-            {/* optional short admin path */}
             <Route path="/admin" element={<AdminDashboard />} />
 
             {/* ---------- chat ---------- */}
